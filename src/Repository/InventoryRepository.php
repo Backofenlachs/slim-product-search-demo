@@ -2,27 +2,27 @@
 
 namespace App\Repository;
 
+use App\Infrastructure\Database;
+use PDO;
+
 class InventoryRepository {
 
     public function search(string $term): array {
-        // Beispielprodukte (Dummy-Daten)
-        $products = [
-            ["id" => 1, "name" => "Rose", "sku" => "PL-001", "stock" => 12],
-            ["id" => 2, "name" => "Lilie", "sku" => "PL-002", "stock" => 5],
-            ["id" => 3, "name" => "Olive", "sku" => "PL-003", "stock" => 8],
-        ];
 
-        //$PDO = Database::connect();
-        //$products = $PDO->fetchAllProducts();
+        $pdo = Database::connect();
         
-        $search_results = [];
-        foreach( $products as $p) {
+        $sql = "
+            SELECT id, name, sku, stock
+            FROM products
+            WHERE name ILIKE :term
+            LIMIT 20
+        ";
+        
+        $statement = $pdo->prepare($sql);
+        $statement->execute([
+            'term' => '%' . $term . '%'
+        ]);
 
-            if(stripos($p["name"], $term) !== false) {
-                $search_results[] = $p;
-            }
-        }
-
-        return $search_results;
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 }
