@@ -1,0 +1,20 @@
+@startuml
+title "Sequence Diagramm: Product Search Flow"
+
+actor "User" as user
+participant "Slim Route" as routing
+participant "SearchProductHandler" as handler
+participant "InventoryRepository" as repo
+participant "PostgreSQL \nDB" as DB
+
+user -> routing: HTTP Request /products/search?q=...
+routing -> handler: handle request
+handler -> repo: search(term)
+repo -> DB: SELECT products WHERE name ILIKE term
+
+DB --> repo: rows
+repo --> handler: products
+handler --> routing: JSON response
+routing --> user: HTTP Response
+
+@enduml
